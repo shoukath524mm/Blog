@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\BlogPostRequest;
+use App\Http\Requests\BlogPostUpdateRequest;
 use App\Models\Post;
 use Validator;
 
@@ -39,18 +40,20 @@ class BlogPostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(BlogPostRequest $request)
     {
-        $validator = Validator::make($request->all(),[
-                'title' => 'required|string|max:250',
-                'content' => 'required|string',
-                'author' => 'required|string|max:250',
-            ]);
 
-        if ($validator->fails()) {
-            $response['success'] = false;
-            $response['message'] = $validator->messages();
-            return  response()->json($response, 422);
+        $validated = $request->validated();
+
+        if (!$validated) {
+
+            $response = [
+                'success' => false,
+                'errors' => $request->errors()->toMessageBag(),
+            ];
+
+            return response()->json($response, 422);
+
         }
 
         $post = Post::create([
@@ -93,19 +96,20 @@ class BlogPostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Post $post)
+    public function update(BlogPostUpdateRequest $request, Post $post)
     {
 
-        $validator = Validator::make($request->all(),[
-                'title' => 'required|string|max:250',
-                'content' => 'required|string',
-                'author' => 'required|string|max:250',
-            ]);
+        $validated = $request->validated();
 
-        if ($validator->fails()) {
-            $response['success'] = false;
-            $response['message'] = $validator->messages();
-            return  response()->json($response, 422);
+        if (!$validated) {
+
+            $response = [
+                'success' => false,
+                'errors' => $request->errors()->toMessageBag(),
+            ];
+
+            return response()->json($response, 422);
+
         }
 
         $post->update($request->all());
