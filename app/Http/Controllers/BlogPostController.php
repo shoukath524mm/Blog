@@ -10,7 +10,7 @@ use Validator;
 
 
 
-class BlogPostController extends Controller
+class BlogPostController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -20,20 +20,10 @@ class BlogPostController extends Controller
         $posts = Post::all();
 
         if($posts) {
-            $response = [
-                'success' => true,
-                'data'    => $posts,
-                'message' => 'Posts Listed successfully',
-                ];  
+            return $this->sendResponse($posts, 'Posts Listed successfully.');
         } else {
-            $response = [
-                'success' => false,
-                'data'    => [],
-                'error' => 'No Posts Found',
-                ]; 
+            return $this->sendError('No Posts Found.');
         }
-
-        return response()->json($response, 200);
 
     }
 
@@ -47,12 +37,7 @@ class BlogPostController extends Controller
 
         if (!$validated) {
 
-            $response = [
-                'success' => false,
-                'errors' => $request->errors()->toMessageBag(),
-            ];
-
-            return response()->json($response, 422);
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
 
         }
 
@@ -62,21 +47,12 @@ class BlogPostController extends Controller
             'author' => $request->author,
         ]);
 
-        if($post) {
-            $response = [
-                'success' => true,
-                'data'    => $post,
-                'message' => 'Post Created successfully',
-                ];  
-        } else {
-            $response = [
-                'success' => false,
-                'data'    => [],
-                'error' => 'Post Creation Failed',
-                ]; 
-        }
 
-        return response()->json($response, 200);
+        if($post) {
+            return $this->sendResponse($post, 'Post Created successfully.');
+        } else {
+            return $this->sendError('Post Creation Failed.');
+        }
     }
 
     /**
@@ -84,13 +60,7 @@ class BlogPostController extends Controller
      */
     public function show(Post $post)
     {
-        $response = [
-            'success' => true,
-            'data'    => $post,
-            'message' => 'Post showed successfully',
-        ];
-
-        return response()->json($response, 200);
+        return $this->sendResponse($post, 'Post showed successfully.');
     }
 
     /**
@@ -102,25 +72,12 @@ class BlogPostController extends Controller
         $validated = $request->validated();
 
         if (!$validated) {
-
-            $response = [
-                'success' => false,
-                'errors' => $request->errors()->toMessageBag(),
-            ];
-
-            return response()->json($response, 422);
-
+           return $this->sendError('Validation Error.', $validator->errors(), 422);
         }
 
         $post->update($request->all());
 
-        $response = [
-            'success' => true,
-            'data'    => $post,
-            'error' => 'Post Updated successfully',
-        ]; 
-
-        return response()->json($response, 200);
+        return $this->sendResponse($post, 'Post Updated successfully.');
 
     }
 
@@ -131,12 +88,8 @@ class BlogPostController extends Controller
     {      
         $post->delete();
 
-        $response = [
-            'success' => true,
-            'message' => 'Post Deleted successfully',
-        ];  
+        return $this->sendResponse([], 'Post Deleted successfully.');
 
-        return response()->json($response, 200);
 
     }
 }
